@@ -23,6 +23,18 @@ namespace {
                 [prev = std::numeric_limits<uint32_t>::max()](const uint32_t curr) mutable
                 { return std::exchange(prev, curr) < curr; });
     }
+
+    uint32_t count_increasing_loop(const std::vector<uint32_t>& input) {
+        uint32_t total{};
+        uint32_t prev = std::numeric_limits<uint32_t>::max();
+        for(const auto i : input) {
+            if(i > prev) {
+                ++total;
+            }
+            prev = i;
+        }
+        return total;
+    }
 }
 
 TEST(TrivialTest, Simple) {
@@ -59,5 +71,25 @@ TEST(TrivialTest, non_ranges) {
         std::copy(std::istream_iterator<uint32_t>(s), std::istream_iterator<uint32_t>{},
                        std::back_inserter(v));
         EXPECT_EQ(count_increasing(v), val) << " on input " << i;
+    }
+}
+
+TEST(TrivialTest, loop) {
+    std::vector<std::pair<std::string, uint32_t>> inputs = {
+            {"", 0},                // empty input 0 increasing
+            {"0", 0},               // single element 0 increasing
+            {"0 1", 1},             // two elements, with increase
+            {"0 1 0 1 0 1 0 1", 4}, // alternating, 4 repetitions
+            {"0 0 0 0 0 0", 0},     // monotonic, no increase
+            {"0 1 2 3", 3},         // increasing sequence - 3 increases
+            {"3 2 1 0", 0},         // decreasing sequence - 0 increases
+    };
+
+    for (auto &[i, val] : inputs) {
+        std::vector<uint32_t> v;
+        std::istringstream s(i);
+        std::copy(std::istream_iterator<uint32_t>(s), std::istream_iterator<uint32_t>{},
+                  std::back_inserter(v));
+        EXPECT_EQ(count_increasing_loop(v), val) << " on input " << i;
     }
 }
