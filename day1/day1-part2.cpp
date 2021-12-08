@@ -5,6 +5,8 @@
 #include <vector>
 #include <numeric>
 
+#include "range/v3/all.hpp"
+#include "fmt/format.h"
 #include "gtest/gtest.h"
 
 /**
@@ -14,6 +16,24 @@
  */
 
 namespace {
+    uint32_t count_increasing_sliding_window(const std::vector<uint32_t>& input) {
+        if (input.size() < 4) {
+            return 0;
+        }
+        auto slide_iter = input | ranges::views::sliding(3) | ranges::views::transform([](auto&& r) {
+            return ranges::accumulate(r, 0);
+        });
+        uint32_t total{};
+        auto prev_iter{slide_iter | ranges::views::take(1)};
+        uint32_t prev = *std::begin(prev_iter);
+        for (const auto curr : slide_iter | ranges::views::drop(1)) {
+            if (std::exchange(prev, curr) < curr) {
+                ++total;
+            }
+        }
+        return total;
+    }
+
     uint32_t count_increasing_windows_lazy(const std::vector<uint32_t>& input) {
         if (input.size() < 4) {
             return 0;
@@ -148,5 +168,27 @@ TEST(SlidingTest, partial_sum) {
                   std::istream_iterator<uint32_t>{},
                   std::back_inserter(v));
         EXPECT_EQ(count_increasing_windows_partial_sum(v), i.second) << " on input " << i.first;
+    }
+}
+
+TEST(SlidingTest, ranges_sliding) {
+    std::vector<std::pair<std::string, uint32_t>> inputs = {
+            {"",                                        0},     // not enough elements for a window
+            {"0 1",                                     0},     // not enough elements for a window
+            {"0 1 0",                                   0},     // a single window
+            {"0 0 0 0 0 0",                             0},     // monotonic, no increase
+            {"0 1 2 3",                                 1},     // two windows, increasing
+            {"3 2 1 0",                                 0},     // two windows, decreasing
+            {"0 1 0 1 0 1",                             2},     // 1, 2, 1, 2 - two increasing
+            {"199 200 208 210 200 207 240 269 260 263", 5}, // from aoc
+    };
+
+    for (auto &i: inputs) {
+        std::stringstream s(i.first);
+        std::vector<uint32_t> v;
+        std::copy(std::istream_iterator<uint32_t>(s),
+                  std::istream_iterator<uint32_t>{},
+                  std::back_inserter(v));
+        EXPECT_EQ(count_increasing_sliding_window(v), i.second) << " on input " << i.first;
     }
 }
