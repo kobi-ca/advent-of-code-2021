@@ -13,7 +13,7 @@
  */
 
 #include <regex>
-#include <fmt/core.h>
+#include <fmt/format.h>
 
 #include "gtest/gtest.h"
 
@@ -60,7 +60,7 @@ namespace {
     }
 }
 
-TEST(NavigationTest, SingleLine) {
+TEST(NavigationTest, Single) {
     std::vector<std::pair<std::string, Position>> inputs = {
             {"forward 10", {.horizontal = 10, .depth = 0}},
             {"down 5", {.horizontal = 0, .depth = 5}},
