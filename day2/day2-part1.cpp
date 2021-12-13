@@ -34,6 +34,24 @@ namespace {
         }
     };
 
+    Position navigate_non_regex(const std::string& directions) {
+        Position pos;
+        if (const auto loc = directions.find_first_of(' '); loc != std::string::npos) {
+            std::string_view s();
+            int32_t value {std::stoi(directions.c_str() + loc + 1)};
+            if (directions.starts_with("forward")) {
+                pos.horizontal += value;
+            }
+            if (directions.starts_with("up")) {
+                pos.depth -= value;
+            }
+            if (directions.starts_with("down")) {
+                pos.depth += value;
+            }
+        }
+        return pos;
+    }
+
     Position navigate(const std::string& directions) {
         const std::regex re("([a-z]+) ([0-9]+)");
         std::smatch bm;
@@ -87,6 +105,23 @@ forward 2)";
     Position result;
     while(std::getline(is, line)) {
         result += navigate(line);
+    }
+    // or operator == with int32_t
+    EXPECT_EQ(result.depth * result.horizontal, 150) << "with input:\n" << input;
+}
+
+TEST(NavigationTest, CompleteNonRegex) {
+    const std::string input = R"(forward 5
+down 5
+forward 8
+up 3
+down 8
+forward 2)";
+    std::string line;
+    std::istringstream is(input);
+    Position result;
+    while(std::getline(is, line)) {
+        result += navigate_non_regex(line);
     }
     // or operator == with int32_t
     EXPECT_EQ(result.depth * result.horizontal, 150) << "with input:\n" << input;

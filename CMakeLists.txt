@@ -21,7 +21,7 @@ add_executable(day1-part2-presented day1/day1-part2-presented.cpp)
 target_link_libraries(day1-part2-presented PRIVATE namedtype::namedtype range-v3::range-v3 fmt::fmt gtest_main)
 
 add_executable(day2-part1 day2/day2-part1.cpp)
-target_link_libraries(day2-part1 PRIVATE namedtype::namedtype range-v3::range-v3 fmt::fmt gtest::gtest_main)
+target_link_libraries(day2-part1 PRIVATE namedtype::namedtype range-v3::range-v3 fmt::fmt gtest_main)
 
 add_executable(day2-part2 day2/day2-part2.cpp)
-target_link_libraries(day2-part2 PRIVATE namedtype::namedtype range-v3::range-v3 fmt::fmt gtest::gtest_main)
+target_link_libraries(day2-part2 PRIVATE namedtype::namedtype range-v3::range-v3 fmt::fmt gtest_main)
